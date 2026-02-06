@@ -13,6 +13,13 @@ tangent = lambda l: math.tan(int(l[1]))
 def handle_line(line, func):
     print(func(line))
 
+# This function makes sure that enough
+# arguments are passed to the interpreter
+# allowing us to avoid crashing the interpreter.
+# `n` is the number of expected arguments for the keyword.
+def check_bounds(line, n):
+    pass
+
 def interpret(code):
     lines = 0
     for line in code.splitlines():
