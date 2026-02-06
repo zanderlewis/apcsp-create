@@ -1,30 +1,47 @@
 #!/usr/bin/python3
 import sys
+import math
 
-add = lambda x, y: int(x)+int(y)
-sub = lambda x, y: int(x)-int(y)
-mul = lambda x, y: int(x)*int(y)
-div = lambda x, y: int(x)/int(y)
+add = lambda l: int(l[1])+int(l[2])
+sub = lambda l: int(l[1])-int(l[2])
+mul = lambda l: int(l[1])*int(l[2])
+div = lambda l: int(l[1])/int(l[2])
+sine = lambda l: math.sin(int(l[1]))
+cosine = lambda l: math.cos(int(l[1]))
+tangent = lambda l: math.tan(int(l[1]))
 
 def handle_line(line, func):
-    arr = []
-    arr = line.split()
-    print(func(arr[1], arr[2]))
+    print(func(line))
 
 def interpret(code):
+    lines = 0
     for line in code.splitlines():
-        arr = []
-        if line.startswith("ADD "):
-            handle_line(line, add)
-        elif line.startswith("SUB "):
-            handle_line(line,sub)
-        elif line.startswith("MUL "):
-            handle_line(line, mul)
-        elif line.startswith("DIV "):
-            if line.split()[2] != "0":
-                handle_line(line, div)
-            else:
-                print("div by zero")
+        lines += 1
+        line = line.split()
+        match line[0]:
+            case "ADD": handle_line(line, add)
+            case "SUB": handle_line(line, sub)
+            case "MUL": handle_line(line, mul)
+            case "DIV":
+                if line[2] == "0":
+                    print(f"error: div by zero on line {lines}")
+                else:
+                    handle_line(line, div)
+            case "SIN": handle_line(line, sine)
+            case "COS": handle_line(line, cosine)
+            case "TAN": handle_line(line, tangent)
 
 def main():
-    interpret(open(sys.argv[2], 'r').read())
+    if len(sys.argv) < 2:
+        print("Loading REPL...")
+        print("Type 'exit' to exit.")
+        while True:
+            line = input(">>> ")
+            if line == "exit":
+                break
+            interpret(line)
+    else:
+        interpret(open(sys.argv[1], 'r').read())
+
+if __name__ == "__main__":
+    main()
