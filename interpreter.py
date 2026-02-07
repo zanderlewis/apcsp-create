@@ -130,18 +130,22 @@ def interpret(code):
         program_counter += 1
 
 
+def repl():
+    print("Loading REPL...")
+    print("Type 'exit' or 'quit' to exit.")
+    try:
+        while True:
+            line = input(">>> ")
+            if line.strip() in ["exit", "quit"]:
+                break
+            interpret(line)
+    except KeyboardInterrupt:
+        sys.exit(0)
+
+
 def main():
     if len(sys.argv) < 2:
-        print("Loading REPL...")
-        print("Type 'exit' or 'quit' to exit.")
-        try:
-            while True:
-                line = input(">>> ")
-                if line.strip() in ["exit", "quit"]:
-                    break
-                interpret(line)
-        except KeyboardInterrupt:
-            sys.exit(0)
+        repl()
     else:
         interpret(open(sys.argv[1], "r").read())
 
