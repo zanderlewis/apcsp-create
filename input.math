@@ -1,8 +1,12 @@
-ADD 5 5
-SUB 2 3
-MUL 5 3
-DIV 20 2
-SIN 90
-COS 90
-TAN 90
-DIV 10 0
+SET a 0
+SET b 1
+SET n 10
+LABEL loop
+PRINT a
+SET temp ADD a b
+SET a b
+SET b temp
+SET n SUB n 1
+IFGOTO n 0 end
+GOTO loop
+LABEL end
