@@ -79,7 +79,7 @@ def handle_set(line, variables, program_counter):
     if len(line) > 2 and line[2] in OPERATION_MAP:
         operation, num_args = OPERATION_MAP[line[2]]
         args = line[3:]
-        if line[2] == "DIV" and get_var(args[2], variables) == "0":
+        if line[2] == "DIV" and get_var(args[1], variables) == "0":
             print(f"error: div by zero on line {program_counter + 1}")
             sys.exit(1)
         variables[var_name] = handle_line(
