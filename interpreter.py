@@ -27,10 +27,23 @@ def check_bounds(line, n, lines):
         print(f"error: not enough arguments on line {lines}")
         sys.exit(1)
 
+# This function retrieves variables if they exist,
+# else they return the passed keyword back to the program.
+def get_var(keyword, variables):
+    if keyword in variables:
+        return variables[keyword]
+    return keyword
 
 # This function interprets our language code and ultimately runs it.
 def interpret(code):
-    lines = 0
+    lines = code.splitlines()
+    variables = {}
+    labels = {} # Labels allow GOTO statements for loops.
+
+    # First, we collect labels
+    # TODO
+
+    # Next, we run the interpreter like normal
     for line in code.splitlines():
         lines += 1
         line = line.split()
