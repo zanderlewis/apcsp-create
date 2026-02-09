@@ -1,59 +1,90 @@
 #!/usr/bin/python3
+
+"""
+Example Code:
+
+LET a = 0
+LET b = 1
+LET n = 10
+
+LABEL loop
+PRINT a
+
+LET temp = a+b
+LET a = b
+LET b = temp
+LET n = n-1
+
+IFGOTO n 0 end
+GOTO loop
+LABEL end
+"""
+
 import sys
 import math
 
 
 def add(args, vars):
-    return int(get_var(args[0], vars)) + int(get_var(args[1], vars))
+    return float(get_var(args[0], vars)) + float(get_var(args[1], vars))
 
 
 def sub(args, vars):
-    return int(get_var(args[0], vars)) - int(get_var(args[1], vars))
+    return float(get_var(args[0], vars)) - float(get_var(args[1], vars))
 
 
 def mul(args, vars):
-    return int(get_var(args[0], vars)) * int(get_var(args[1], vars))
+    return float(get_var(args[0], vars)) * float(get_var(args[1], vars))
 
 
 def div(args, vars):
-    return int(get_var(args[0], vars)) / int(get_var(args[1], vars))
+    return float(get_var(args[0], vars)) / float(get_var(args[1], vars))
 
 
 def sine(args, vars):
-    return math.sin(int(get_var(args[0], vars)))
+    return math.sin(float(get_var(args[0], vars)))
 
 
 def cosine(args, vars):
-    return math.cos(int(get_var(args[0], vars)))
+    return math.cos(float(get_var(args[0], vars)))
 
 
 def tangent(args, vars):
-    return math.tan(int(get_var(args[0], vars)))
+    return math.tan(float(get_var(args[0], vars)))
 
 
-KEYWORDS = ["ADD", "SUB", "MUL", "DIV", "SIN", "COS", "TAN"]
 OPERATION_MAP = {
-    "ADD": (add, 2),
-    "SUB": (sub, 2),
-    "MUL": (mul, 2),
-    "DIV": (div, 2),
-    "SIN": (sine, 1),
-    "COS": (cosine, 1),
-    "TAN": (tangent, 1),
+    "+": (add, 2),
+    "-": (sub, 2),
+    "*": (mul, 2),
+    "/": (div, 2),
+    "sin": (sine, 1),
+    "cos": (cosine, 1),
+    "tan": (tangent, 1),
 }
 
-
-def check_bounds(args, n, lines):
-    """
-    This function makes sure that enough arguments
-    are passed to the interpreter allowing us to
-    avoid crashing the interpreter. `n` is the
-    number of expected arguments for the keyword.
-    """
-    if len(args) < n:
-        print(f"error: not enough arguments on line {lines}")
-        sys.exit(1)
-
+def handle_expr(line, variables):
+    # First, we skip the first two elements if setting variables, first element if PRINT
+    # ['LET', 'a', '=', '0'] OR ['LET', 'a', '=', '2', '+', '3'] OR ['PRINT', 'a']
+    line = line[2:] if line[0] == "LET" else line[1:]
+    # line[0] is `=` if it's a LET statement
+    if line[0] == "=":
+        line = line[1:]  # Skip the '='
+    # Now we have the actual expression, which can be a single value or an operation
+    if len(line) == 1:
+        return get_var(line[0], variables)
+    else:
+        # Math operation, we expect something like ['2', '+', '3'] or ['a', '*', 'b']
+        left = line[0]
+        op = line[1]
+        right = line[2]
+        if op in OPERATION_MAP:
+            func, arg_count = OPERATION_MAP[op]
+            if arg_count == 2:
+                return func([left, right], variables)
+            elif arg_count == 1:
+                return func([left], variables)
+        else:
+            raise ValueError(f"Unknown operator: {op}")
 
 def get_var(keyword, variables):
     """
@@ -65,30 +96,43 @@ def get_var(keyword, variables):
     return keyword
 
 
-def handle_line(args, variables, func, num_args, lines):
-    """
-    This function allows us to write less code in order
-    to handle arguments and call their respective functions.
-    """
-    check_bounds(args, num_args, lines)
-    return func(args, variables)
-
-
-def handle_set(line, variables, program_counter):
+def handle_let(line, variables, program_counter):
+    """This function handles variable assignment."""
     var_name = line[1]
-    if len(line) > 2 and line[2] in OPERATION_MAP:
-        operation, num_args = OPERATION_MAP[line[2]]
-        args = line[3:]
-        if line[2] == "DIV" and get_var(args[1], variables) == "0":
-            print(f"error: div by zero on line {program_counter + 1}")
-            sys.exit(1)
-        variables[var_name] = handle_line(
-            args, variables, operation, num_args, program_counter + 1
-        )
-    else:
-        variables[var_name] = get_var(line[2], variables)
-    return variables, program_counter
+    # Evaluate the expression on the right side of the '='
+    expr_result = handle_expr(line, variables)
+    variables[var_name] = expr_result
+    return variables, program_counter + 1
 
+
+def handle_ifgoto(line, variables, labels, program_counter):
+    """This function handles IFGOTO statements and adds a ton of comparison operators."""
+    vval = float(get_var(line[1], variables))
+    comp_val = float(get_var(line[3], variables))
+    label = line[4]
+    operator = line[2]
+    condition_met = False
+
+    match operator:
+        case "==":
+            condition_met = vval == comp_val
+        case "!=":
+            condition_met = vval != comp_val
+        case "<":
+            condition_met = vval < comp_val
+        case "<=":
+            condition_met = vval <= comp_val
+        case ">":
+            condition_met = vval > comp_val
+        case ">=":
+            condition_met = vval >= comp_val
+        case _:
+            raise ValueError(f"Unknown operator: {operator}")
+
+    if condition_met:
+        return labels[label]
+    else:
+        return program_counter + 1
 
 def interpret(code):
     """This function interprets our language code and ultimately runs it."""
@@ -113,20 +157,17 @@ def interpret(code):
             continue
 
         match line[0]:
-            case "SET":
-                variables, program_counter = handle_set(
-                    line, variables, program_counter
-                )
+            case "LET":
+                variables, program_counter = handle_let(line, variables, program_counter)
+                continue  # We already updated the program counter
             case "GOTO":
                 program_counter = labels[line[1]]
                 continue  # We want to jump straight to the LABEL location
             case "IFGOTO":
-                # If ____ ____ Then Go To ____
-                if str(get_var(line[1], variables)) == line[2]:
-                    program_counter = labels[line[3]]
-                    continue  # Same as GOTO
+                program_counter = handle_ifgoto(line, variables, labels, program_counter)
+                continue  # handle_ifgoto will update the program counter if needed
             case "PRINT":
-                print(get_var(line[1], variables))
+                print(float(get_var(line[1], variables)))
         program_counter += 1
 
 

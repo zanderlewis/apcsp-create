@@ -1,0 +1,15 @@
+LET a = 0
+LET b = 1
+LET n = 10
+
+LABEL loop
+PRINT a
+
+LET temp = a + b
+LET a = b
+LET b = temp
+LET n = n - 1
+
+IFGOTO n == 0 end
+GOTO loop
+LABEL end

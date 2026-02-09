@@ -1,0 +1,9 @@
+LET f = 1
+LET i = 0
+LET n = 6
+
+LABEL mult
+LET i = i + 1
+LET f = f * i
+IFGOTO i != n mult
+PRINT f
