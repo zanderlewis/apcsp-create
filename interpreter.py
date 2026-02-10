@@ -1,25 +1,4 @@
 #!/usr/bin/python3
-
-"""
-Example Code:
-
-LET a = 0
-LET b = 1
-LET n = 10
-
-LABEL loop
-PRINT a
-
-LET temp = a+b
-LET a = b
-LET b = temp
-LET n = n-1
-
-IFGOTO n 0 end
-GOTO loop
-LABEL end
-"""
-
 import sys
 import math
 
@@ -143,7 +122,7 @@ def interpret(code):
     # First, we collect labels
     for i, line in enumerate(lines):
         parts = line.split()
-        if parts and parts[0] == "LABEL":
+        if parts and parts[0].upper() == "LABEL":
             labels[parts[1]] = i  # Add label and line number
 
     # Next, we run the interpreter like normal
@@ -156,7 +135,7 @@ def interpret(code):
             program_counter += 1
             continue
 
-        match line[0]:
+        match line[0].upper():
             case "LET":
                 variables, program_counter = handle_let(line, variables, program_counter)
                 continue  # We already updated the program counter

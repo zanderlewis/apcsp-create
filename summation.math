@@ -1,0 +1,11 @@
+LET limit = 100
+LET number = 0
+LET i = 1
+
+LET limit = limit + 1
+
+LABEL add
+LET number = number + i
+LET i = i + 1
+IFGOTO i != limit add
+PRINT number

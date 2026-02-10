@@ -1,6 +1,6 @@
 LET f = 1
 LET i = 0
-LET n = 6
+LET n = 52
 
 LABEL mult
 LET i = i + 1
