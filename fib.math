@@ -1,15 +1,19 @@
+; Initialize parameters
 LET a = 0
 LET b = 1
-LET n = 10
+LET n = 10  ; Change this variable
 
 LABEL loop
-PRINT a
+PRINT a  ; Print current fibonacci number
 
+; Fibonacci magic
 LET temp = a + b
 LET a = b
 LET b = temp
 LET n = n - 1
 
+; Break out of the loop if n is 0, else keep looping
 IFGOTO n == 0 end
 GOTO loop
-LABEL end
+
+LABEL end  ; All done

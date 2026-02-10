@@ -1,6 +1,7 @@
+; Initialize parameters
 LET f = 1
 LET i = 0
-LET n = 52
+LET n = 52  ; Change this variable
 
 LABEL mult
 LET i = i + 1

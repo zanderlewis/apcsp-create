@@ -1,11 +1,14 @@
-LET limit = 100
+; Initialize parameters
+LET limit = 100  ; Change this variable
 LET number = 0
 LET i = 1
 
+; This allows us to use the last number in the limit
 LET limit = limit + 1
 
 LABEL add
 LET number = number + i
 LET i = i + 1
 IFGOTO i != limit add
-PRINT number
+
+PRINT number  ; Print the final number

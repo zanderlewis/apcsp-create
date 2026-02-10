@@ -119,7 +119,15 @@ def interpret(code):
     variables = {}
     labels = {}  # Labels allow GOTO statements for loops.
 
-    # First, we collect labels
+    # First, we ignore comments, both in-line and full-line comments
+    cleaned_lines = []
+    for line in lines:
+        line = line.split(";", 1)[0].strip()  # A nod towards BASIC/Assembly
+        if line:  # Only add non-empty lines
+            cleaned_lines.append(line)
+    lines = cleaned_lines
+
+    # Secondly, we collect labels
     for i, line in enumerate(lines):
         parts = line.split()
         if parts and parts[0].upper() == "LABEL":
