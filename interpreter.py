@@ -43,9 +43,9 @@ OPERATION_MAP = {
 
 def handle_expr(line, variables):
     # First, we skip the first two elements if setting variables, first element if PRINT
-    # ['LET', 'a', '=', '0'] OR ['LET', 'a', '=', '2', '+', '3'] OR ['PRINT', 'a']
-    line = line[2:] if line[0] == "LET" else line[1:]
-    # line[0] is `=` if it's a LET statement
+    # ['let', 'a', '=', '0'] OR ['let', 'a', '=', '2', '+', '3'] OR ['print', 'a']
+    line = line[2:] if line[0] == "let" else line[1:]
+    # line[0] is `=` if it's a let statement
     if line[0] == "=":
         line = line[1:]  # Skip the '='
     # Now we have the actual expression, which can be a single value or an operation
@@ -54,7 +54,7 @@ def handle_expr(line, variables):
     else:
         # Math operation, we expect something like ['2', '+', '3'] or ['a', '*', 'b']
         left = line[0]
-        op = line[1]
+        op = line[1].lower()
         right = line[2]
         if op in OPERATION_MAP:
             func, arg_count = OPERATION_MAP[op]
@@ -85,7 +85,7 @@ def handle_let(line, variables, program_counter):
 
 
 def handle_ifgoto(line, variables, labels, program_counter):
-    """This function handles IFGOTO statements and adds a ton of comparison operators."""
+    """This function handles ifgoto statements and adds a ton of comparison operators."""
     vval = float(get_var(line[1], variables))
     comp_val = float(get_var(line[3], variables))
     label = line[4]
@@ -114,10 +114,10 @@ def handle_ifgoto(line, variables, labels, program_counter):
         return program_counter + 1
 
 def interpret(code):
-    """This function interprets our language code and ultimately runs it."""
+    """This function interprets the language code and ultimately runs it."""
     lines = code.splitlines()
     variables = {}
-    labels = {}  # Labels allow GOTO statements for loops.
+    labels = {}  # Labels allow goto statements for loops.
 
     # First, we ignore comments, both in-line and full-line comments
     cleaned_lines = []
@@ -130,7 +130,7 @@ def interpret(code):
     # Secondly, we collect labels
     for i, line in enumerate(lines):
         parts = line.split()
-        if parts and parts[0].upper() == "LABEL":
+        if parts and parts[0].lower() == "label":
             labels[parts[1]] = i  # Add label and line number
 
     # Next, we run the interpreter like normal
@@ -143,17 +143,17 @@ def interpret(code):
             program_counter += 1
             continue
 
-        match line[0].upper():
-            case "LET":
+        match line[0].lower():
+            case "let":
                 variables, program_counter = handle_let(line, variables, program_counter)
                 continue  # We already updated the program counter
-            case "GOTO":
+            case "goto":
                 program_counter = labels[line[1]]
                 continue  # We want to jump straight to the LABEL location
-            case "IFGOTO":
+            case "ifgoto":
                 program_counter = handle_ifgoto(line, variables, labels, program_counter)
                 continue  # handle_ifgoto will update the program counter if needed
-            case "PRINT":
+            case "print":
                 print(float(handle_expr(line, variables)))
         program_counter += 1
 
@@ -165,7 +165,7 @@ def repl():
     try:
         while True:
             line = input(">>> ")
-            if line.strip() in ["exit", "quit"]:
+            if line.strip().lower() in ["exit", "quit"]:
                 break
             interpret(line)
     except KeyboardInterrupt:

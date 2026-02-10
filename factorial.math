@@ -1,10 +1,10 @@
 ; Initialize parameters
-LET f = 1
-LET i = 0
-LET n = 52  ; Change this variable
+let f = 1
+let i = 0
+let n = 52  ; Change this variable
 
-LABEL mult
-LET i = i + 1
-LET f = f * i
-IFGOTO i != n mult
-PRINT f
+label mult
+let i = i + 1
+let f = f * i
+ifgoto i != n mult
+print f
