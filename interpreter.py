@@ -154,12 +154,13 @@ def interpret(code):
                 program_counter = handle_ifgoto(line, variables, labels, program_counter)
                 continue  # handle_ifgoto will update the program counter if needed
             case "PRINT":
-                print(float(get_var(line[1], variables)))
+                print(float(handle_expr(line, variables)))
         program_counter += 1
 
 
 def repl():
     print("Loading REPL...")
+    print("[WARNING] REPL does not support multi-line statements or labels. Use a file for more complex code.")
     print("Type 'exit' or 'quit' to exit.")
     try:
         while True:
