@@ -41,6 +41,7 @@ OPERATION_MAP = {
     "tan": (tangent, 1),
 }
 
+
 def handle_expr(line, variables):
     # First, we skip the first two elements if setting variables, first element if PRINT
     # ['let', 'a', '=', '0'] OR ['let', 'a', '=', '2', '+', '3'] OR ['print', 'a']
@@ -62,8 +63,11 @@ def handle_expr(line, variables):
                 return func([left, right], variables)
             elif arg_count == 1:
                 return func([left], variables)
+            else:
+                raise ValueError(f"Unsupported number of arguments for operator {op}")
         else:
             raise ValueError(f"Unknown operator: {op}")
+
 
 def get_var(keyword, variables):
     """
@@ -110,8 +114,8 @@ def handle_ifgoto(line, variables, labels, program_counter):
 
     if condition_met:
         return labels[label]
-    else:
-        return program_counter + 1
+    return program_counter + 1
+
 
 def interpret(code):
     """This function interprets the language code and ultimately runs it."""
@@ -145,13 +149,17 @@ def interpret(code):
 
         match line[0].lower():
             case "let":
-                variables, program_counter = handle_let(line, variables, program_counter)
+                variables, program_counter = handle_let(
+                    line, variables, program_counter
+                )
                 continue  # We already updated the program counter
             case "goto":
                 program_counter = labels[line[1]]
                 continue  # We want to jump straight to the LABEL location
             case "ifgoto":
-                program_counter = handle_ifgoto(line, variables, labels, program_counter)
+                program_counter = handle_ifgoto(
+                    line, variables, labels, program_counter
+                )
                 continue  # handle_ifgoto will update the program counter if needed
             case "print":
                 print(float(handle_expr(line, variables)))
@@ -160,7 +168,9 @@ def interpret(code):
 
 def repl():
     print("Loading REPL...")
-    print("[WARNING] REPL does not support multi-line statements or labels. Use a file for more complex code.")
+    print(
+        "[WARNING] REPL does not support multi-line statements or labels. Use a file for more complex code."
+    )
     print("Type 'exit' or 'quit' to exit.")
     try:
         while True:
