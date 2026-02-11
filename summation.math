@@ -9,5 +9,5 @@ let limit = limit + 1
 label add
 let number = number + i
 let i = i + 1
-ifgoto i != limit add
+if i != limit goto add
 print number  ; Print the final number

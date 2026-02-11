@@ -92,7 +92,9 @@ def handle_ifgoto(line, variables, labels, program_counter):
     """This function handles ifgoto statements and adds a ton of comparison operators."""
     vval = float(get_var(line[1], variables))
     comp_val = float(get_var(line[3], variables))
-    label = line[4]
+    if line[4].lower() != "goto":
+        raise ValueError("Expected 'goto' in if statement")
+    label = line[5] # line[4] is "goto", line[5] is the label name
     operator = line[2]
     condition_met = False
 
@@ -156,7 +158,7 @@ def interpret(code):
             case "goto":
                 program_counter = labels[line[1]]
                 continue  # We want to jump straight to the LABEL location
-            case "ifgoto":
+            case "if":
                 program_counter = handle_ifgoto(
                     line, variables, labels, program_counter
                 )

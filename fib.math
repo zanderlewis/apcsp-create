@@ -13,7 +13,7 @@ let b = temp
 let n = n - 1
 
 ; Break out of the loop if n is 0, else keep looping
-ifgoto n == 0 end
+if n == 0 goto end
 goto loop
 
 label end  ; All done
