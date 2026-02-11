@@ -18,6 +18,12 @@ def mul(args, vars):
 def div(args, vars):
     return float(get_var(args[0], vars)) / float(get_var(args[1], vars))
 
+def mod(args, vars):
+    return float(get_var(args[0], vars)) % float(get_var(args[1], vars))
+
+def power(args, vars):
+    return float(get_var(args[0], vars)) ** float(get_var(args[1], vars))
+
 
 def sine(args, vars):
     return math.sin(float(get_var(args[0], vars)))
@@ -36,6 +42,8 @@ OPERATION_MAP = {
     "-": (sub, 2),
     "*": (mul, 2),
     "/": (div, 2),
+    "%": (mod, 2),
+    "^": (power, 2),
     "sin": (sine, 1),
     "cos": (cosine, 1),
     "tan": (tangent, 1),
