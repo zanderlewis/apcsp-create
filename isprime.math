@@ -12,7 +12,7 @@ let sqrt_num = sqrt num
 print "Square root of num: " + sqrt_num
 
 label loop
-print i  ; If you want to see what the current modulus is, uncomment this line
+; print i  ; If you want to see what the current modulus is, uncomment this line
 if i > sqrt_num goto iprime  ; Is Prime
 let mod_product = num % i
 if mod_product == 0 goto nprime
