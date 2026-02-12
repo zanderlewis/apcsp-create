@@ -1,5 +1,5 @@
 ; Initialize parameters
-let num = 16661  ; Change this variable
+let num = 198765434567891  ; Change this variable
 let i = 2
 let mod_product = 0
 
@@ -8,20 +8,23 @@ let mod_product = 0
 let upper_bound = 2 ^ 53
 if num > upper_bound goto end
 
+let sqrt_num = sqrt num
+print "Square root of num: " + sqrt_num
+
 label loop
-; print i  ; If you want to see what the current modulus is, uncomment this line
-if i >= num goto iprime  ; Is Prime
+print i  ; If you want to see what the current modulus is, uncomment this line
+if i > sqrt_num goto isprime  ; Is Prime
 let mod_product = num % i
 if mod_product == 0 goto nprime
 let i = i + 1
 goto loop
 
 label iprime
-print 1
+print num + " is Prime!"
 goto end
 
 label nprime
-print 0
+print num + " is not Prime!"
 goto end
 
 label end

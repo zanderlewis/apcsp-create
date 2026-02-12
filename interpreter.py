@@ -1,40 +1,95 @@
 #!/usr/bin/python3
-import sys
 import math
+import shlex
+import sys
+
+
+def is_str_literal(s):
+    return isinstance(s, str) and s.startswith('"') and s.endswith('"')
+
+
+def check_str(args, left, right):
+    arg0_is_str = is_str_literal(args[0]) if len(args) > 0 else False
+    arg1_is_str = is_str_literal(args[1]) if len(args) > 1 else False
+    if arg0_is_str or arg1_is_str or isinstance(left, str) or isinstance(right, str):
+        return True
+    return False
 
 
 def add(args, vars):
-    return float(get_var(args[0], vars)) + float(get_var(args[1], vars))
+    left = get_var(args[0], vars)
+    right = get_var(args[1], vars)
+    if check_str(args, left, right):
+        return str(left) + str(right)
+    return float(left) + float(right)
 
 
 def sub(args, vars):
-    return float(get_var(args[0], vars)) - float(get_var(args[1], vars))
+    left = get_var(args[0], vars)
+    right = get_var(args[1], vars)
+    if check_str(args, left, right):
+        raise ValueError("Subtraction is not supported for strings")
+    return float(left) - float(right)
 
 
 def mul(args, vars):
-    return float(get_var(args[0], vars)) * float(get_var(args[1], vars))
+    left = get_var(args[0], vars)
+    right = get_var(args[1], vars)
+    if check_str(args, left, right):
+        raise ValueError("Multiplication is not supported for strings")
+    return float(left) * float(right)
 
 
 def div(args, vars):
-    return float(get_var(args[0], vars)) / float(get_var(args[1], vars))
+    left = get_var(args[0], vars)
+    right = get_var(args[1], vars)
+    if check_str(args, left, right):
+        raise ValueError("Division is not supported for strings")
+    return float(left) / float(right)
+
 
 def mod(args, vars):
-    return float(get_var(args[0], vars)) % float(get_var(args[1], vars))
+    left = get_var(args[0], vars)
+    right = get_var(args[1], vars)
+    if check_str(args, left, right):
+        raise ValueError("Modulus is not supported for strings")
+    return float(left) % float(right)
+
 
 def power(args, vars):
-    return float(get_var(args[0], vars)) ** float(get_var(args[1], vars))
+    left = get_var(args[0], vars)
+    right = get_var(args[1], vars)
+    if check_str(args, left, right):
+        raise ValueError("Exponentiation is not supported for strings")
+    return float(left) ** float(right)
 
 
 def sine(args, vars):
-    return math.sin(float(get_var(args[0], vars)))
+    left = get_var(args[0], vars)
+    if check_str(args, left, None):
+        raise ValueError("Sine is not supported for strings")
+    return math.sin(float(left))
 
 
 def cosine(args, vars):
-    return math.cos(float(get_var(args[0], vars)))
+    left = get_var(args[0], vars)
+    if check_str(args, left, None):
+        raise ValueError("Cosine is not supported for strings")
+    return math.cos(float(left))
 
 
 def tangent(args, vars):
-    return math.tan(float(get_var(args[0], vars)))
+    left = get_var(args[0], vars)
+    if check_str(args, left, None):
+        raise ValueError("Tangent is not supported for strings")
+    return math.tan(float(left))
+
+
+def square_root(args, vars):
+    left = get_var(args[0], vars)
+    if check_str(args, left, None):
+        raise ValueError("Square root is not supported for strings")
+    return math.sqrt(float(left))
 
 
 OPERATION_MAP = {
@@ -47,21 +102,29 @@ OPERATION_MAP = {
     "sin": (sine, 1),
     "cos": (cosine, 1),
     "tan": (tangent, 1),
+    "sqrt": (square_root, 1),
 }
 
 
 def handle_expr(line, variables):
-    # First, we skip the first two elements if setting variables, first element if PRINT
-    # ['let', 'a', '=', '0'] OR ['let', 'a', '=', '2', '+', '3'] OR ['print', 'a']
     line = line[2:] if line[0] == "let" else line[1:]
-    # line[0] is `=` if it's a let statement
     if line[0] == "=":
-        line = line[1:]  # Skip the '='
-    # Now we have the actual expression, which can be a single value or an operation
+        line = line[1:]
     if len(line) == 1:
         return get_var(line[0], variables)
+    elif len(line) == 2:
+        # Single-argument operation, e.g., ['sqrt', 'num']
+        op = line[0].lower()
+        arg = line[1]
+        if op in OPERATION_MAP:
+            func, arg_count = OPERATION_MAP[op]
+            if arg_count == 1:
+                return func([arg], variables)
+            else:
+                raise ValueError(f"Unsupported number of arguments for operator {op}")
+        else:
+            raise ValueError(f"Unknown operator: {op}")
     else:
-        # Math operation, we expect something like ['2', '+', '3'] or ['a', '*', 'b']
         left = line[0]
         op = line[1].lower()
         right = line[2]
@@ -84,7 +147,12 @@ def get_var(keyword, variables):
     """
     if keyword in variables:
         return variables[keyword]
-    return keyword
+    if is_str_literal(keyword):
+        return keyword[1:-1]
+    try:
+        return float(keyword)
+    except ValueError:
+        return keyword
 
 
 def handle_let(line, variables, program_counter):
@@ -102,7 +170,7 @@ def handle_ifgoto(line, variables, labels, program_counter):
     comp_val = float(get_var(line[3], variables))
     if line[4].lower() != "goto":
         raise ValueError("Expected 'goto' in if statement")
-    label = line[5] # line[4] is "goto", line[5] is the label name
+    label = line[5]  # line[4] is "goto", line[5] is the label name
     operator = line[2]
     condition_met = False
 
@@ -143,14 +211,14 @@ def interpret(code):
 
     # Secondly, we collect labels
     for i, line in enumerate(lines):
-        parts = line.split()
+        parts = shlex.split(line)
         if parts and parts[0].lower() == "label":
             labels[parts[1]] = i  # Add label and line number
 
     # Next, we run the interpreter like normal
     program_counter = 0
     while program_counter < len(lines):
-        line = lines[program_counter].split()
+        line = shlex.split(lines[program_counter])
 
         # Empty line
         if not line:
@@ -172,7 +240,11 @@ def interpret(code):
                 )
                 continue  # handle_ifgoto will update the program counter if needed
             case "print":
-                print(float(handle_expr(line, variables)))
+                result = handle_expr(line, variables)
+                if isinstance(result, (int, float)):
+                    print(float(result))
+                else:
+                    print(result)
         program_counter += 1
 
 
