@@ -1,5 +1,6 @@
 ; Initialize parameters
-let num = 16661  ; Change this variable
+let num = 2 ^ 31  ; Change this variable
+let num = num - 1
 let i = 2
 let mod_product = 0
 
